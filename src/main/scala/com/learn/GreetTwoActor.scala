@@ -29,10 +29,10 @@ object GreetTwoActor {
     var greetA = ActorSystem(GreetTwoActor.apply(), "Greet");
     var greetedA = ActorSystem(Behaviors.setup[Greeted] { context =>
       Behaviors.receive { (context, message) =>
-        print("Hi there ", message)
+        print("Hi  ", message)
         Behaviors.same
       }
     }, "Greeted")
-    greetA ! Greet("hi", greetedA)
+    greetA ! Greet("Hi there", greetedA)
   }
 }
