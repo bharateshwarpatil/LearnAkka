@@ -12,7 +12,9 @@ object HelloWorld {
   }
 
   def main(args: Array[String]): Unit = {
-    ActorSystem(HelloWorld.apply(),"Greet").tell(s" World!!");
+    ActorSystem(HelloWorld.apply(),"Greet")!(s" World!!");
   }
+
+
 
 }
