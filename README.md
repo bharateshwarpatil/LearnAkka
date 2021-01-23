@@ -65,7 +65,7 @@ The fundamental way to interact with an actor is through “tell”, which is so
 
 Tell is asynchronous which means that the method returns right away. After the statement is executed there is no guarantee that the message has been processed by the recipient yet. It also means there is no way to know if the message was received, the processing succeeded or failed.
 
-object Printer {
+``` object Printer {
 
   case class PrintMe(message: String)
 
@@ -84,7 +84,9 @@ val printer: ActorRef[Printer.PrintMe] = system
 
 // these are all fire and forget
 printer ! Printer.PrintMe("message 1")
-printer ! Printer.PrintMe("not message 2")
+printer ! Printer.PrintMe("not message 2") 
+
+```
 
 ##### Useful when:
 
@@ -95,6 +97,12 @@ Problems:
 
 If the inflow of messages is higher than the actor can process the inbox will fill up and can in the worst case cause the JVM crash with an OutOfMemoryError
 If the message gets lost, the sender will not know
+
+##### Problems:
+
+If the inflow of messages is higher than the actor can process the inbox will fill up and can in the worst case cause the JVM crash with an OutOfMemoryError
+If the message gets lost, the sender will not know
+
 
 
 
