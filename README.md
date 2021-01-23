@@ -104,6 +104,39 @@ If the inflow of messages is higher than the actor can process the inbox will fi
 If the message gets lost, the sender will not know
 
 
+##### Request-Response :
 
+Many interactions between actors require one or more response message being sent back from the receiving actor. A response message can be a result of a query, some form of acknowledgment that the message was received and processed or events that the request subscribed to.
+
+In Akka the recipient of responses has to be encoded as a field in the message itself, which the recipient can then use to send (tell) a response back
+
+
+```
+
+case class Request(query: String, replyTo: ActorRef[Response])
+case class Response(result: String)
+
+// The sender would use its own ActorRef[Response], which it can access through ActorContext.self, for the replyTo.
+
+cookieFabric ! CookieFabric.Request("give me cookies", context.self)
+
+def apply(): Behaviors.Receive[Request] =
+  Behaviors.receiveMessage[Request] {
+    case Request(query, replyTo) =>
+      // ... process query ...
+      replyTo ! Response(s"Here are the cookies for [$query]!")
+      Behaviors.same
+  
+
+```
+
+#### Useful when:
+
+Subscribing to an actor that will send many response messages back
+#### Problems:
+
+Actors seldom have a response message from another actor as a part of their protocol (see adapted response)
+It is hard to detect that a message request was not delivered or processed (see ask)
+Unless the protocol already includes a way to provide context, for example a request id that is also sent in the response, it is not possible to tie an interaction to some specific context without introducing a new, separate, actor (see ask or per session child actor)
 
 
