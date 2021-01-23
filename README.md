@@ -38,3 +38,6 @@ Request-response interactions (ask) with another actor
 Access to the self ActorRef
 
 
+### The Guardian Actor
+The top level actor, also called the user guardian actor, is created along with the <b> ActorSystem </b>. Messages sent to the actor system are directed to the root actor.
+
