@@ -1,4 +1,5 @@
-# LearnAkka
+# LearnAkka 
+###### This is are some points taken from AKKA Docs. 
 
 
 ### What is the Difference Between Actor Reference and Path?
@@ -45,4 +46,56 @@ The top level actor, also called the user guardian actor, is created along with 
 The guardian actor should be responsible for initialization of tasks and create the initial actors of the application, but sometimes you might want to spawn new actors from the outside of the guardian actor. For example creating one actor per HTTP request.
 
 That is not difficult to implement in your behavior, but since this is a common pattern there is a predefined message protocol and implementation of a behavior for this. It can be used as the guardian actor of the ActorSystem, possibly combined with Behaviors.setup to start some initial tasks or actors. Child actors can then be started from the outside by telling or asking SpawnProtocol.Spawn to the actor reference of the system. Using ask is similar to how ActorSystem.actorOf can be used in classic actors with the difference that a Future of the ActorRef is returned.
+
+
+### Interaction Patterns
+
+## Introduction
+
+Interacting with an Actor in Akka is done through an ActorRef[T] where T is the type of messages the actor accepts, also known as the “protocol”. This ensures that only the right kind of messages can be sent to an actor and also that no one else but the Actor itself can access the Actor instance internals.
+
+### Interaction Patterns
+
+Interacting with an Actor in Akka is done through an ActorRef[T] where T is the type of messages the actor accepts, also known as the “protocol”. This ensures that only the right kind of messages can be sent to an actor and also that no one else but the Actor itself can access the Actor instance internals.
+
+Message exchange with Actors follow a few common patterns, let’s go through each one of them
+
+#### Fire and Forget
+The fundamental way to interact with an actor is through “tell”, which is so common that it has a special symbolic method name: actorRef ! message. Sending a message with tell can safely be done from any thread.
+
+Tell is asynchronous which means that the method returns right away. After the statement is executed there is no guarantee that the message has been processed by the recipient yet. It also means there is no way to know if the message was received, the processing succeeded or failed.
+
+object Printer {
+
+  case class PrintMe(message: String)
+
+  def apply(): Behavior[PrintMe] =
+    Behaviors.receive {
+      case (context, PrintMe(message)) =>
+        context.log.info(message)
+        Behaviors.same
+    }
+}
+
+val system = ActorSystem(Printer(), "fire-and-forget-sample")
+
+// note how the system is also the top level actor ref
+val printer: ActorRef[Printer.PrintMe] = system
+
+// these are all fire and forget
+printer ! Printer.PrintMe("message 1")
+printer ! Printer.PrintMe("not message 2")
+
+##### Useful when:
+
+It is not critical to be sure that the message was processed
+There is no way to act on non successful delivery or processing
+We want to minimize the number of messages created to get higher throughput (sending a response would require creating twice the number of messages)
+Problems:
+
+If the inflow of messages is higher than the actor can process the inbox will fill up and can in the worst case cause the JVM crash with an OutOfMemoryError
+If the message gets lost, the sender will not know
+
+
+
 
