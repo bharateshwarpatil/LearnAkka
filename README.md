@@ -41,3 +41,8 @@ Access to the self ActorRef
 ### The Guardian Actor
 The top level actor, also called the user guardian actor, is created along with the <b> ActorSystem </b>. Messages sent to the actor system are directed to the root actor.
 
+### SpawnProtocol
+The guardian actor should be responsible for initialization of tasks and create the initial actors of the application, but sometimes you might want to spawn new actors from the outside of the guardian actor. For example creating one actor per HTTP request.
+
+That is not difficult to implement in your behavior, but since this is a common pattern there is a predefined message protocol and implementation of a behavior for this. It can be used as the guardian actor of the ActorSystem, possibly combined with Behaviors.setup to start some initial tasks or actors. Child actors can then be started from the outside by telling or asking SpawnProtocol.Spawn to the actor reference of the system. Using ask is similar to how ActorSystem.actorOf can be used in classic actors with the difference that a Future of the ActorRef is returned.
+
